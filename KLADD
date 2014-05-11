@@ -1,0 +1,233 @@
+<!--- Slut på invites --->
+            
+            <!---- Imgae upload form --->
+            <!--
+             <form method="post" action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" enctype="multipart/form-data">
+Select Image File:
+<input type="file" name="userfile"  size="40">
+<input type="hidden" name="MAX_FILE_SIZE" value="10000000">
+<select name="image_ctgy">
+<option value="animals">Animals</option>
+<option value="vegetables">Vegetables</option>
+<option value="minerals">Minerals</option>
+</select>
+<br />
+<input type="submit" name="submit" value="submit">
+</form>
+
+
+-->
+			<!--- End image upload form --->
+            
+            <!--- Image --->
+       <!--
+          <?php
+
+/*** check if a file was submitted ***/
+if(!isset($_FILES['userfile'], $_POST['image_ctgy']))
+    {
+    echo '<p>Please select a file</p>';
+    }
+else
+    {
+    try {
+        upload();
+        /*** give praise and thanks to the php gods ***/
+        echo '<p>Thank you for submitting</p>';
+        }
+    catch(PDOException $e)
+        {
+    echo '<h4>'.$e->getMessage().'</h4>';
+        }
+    catch(Exception $e)
+        {
+        echo '<h4>'.$e->getMessage().'</h4>';
+        }
+    }
+
+
+
+/**
+ *
+ * the upload function
+ * 
+ * @access public
+ *
+ * @return void
+ *
+ */
+ 
+ 
+function upload(){
+$allowed = array("image/jpeg", "image/gif", "application/pdf");
+/*** check if a file was uploaded ***/
+if(is_uploaded_file($_FILES['userfile']['tmp_name']) && getimagesize($_FILES['userfile']['tmp_name']) != false)
+    {
+    /*** an array of allowed categories ***/
+    $cat_array = array("animals", "vegetables", "minerals");
+    if(filter_has_var(INPUT_POST, "notset") !== false || in_array($_POST['image_ctgy'], $cat_array) !== false)
+        {
+        $image_ctgy = filter_input(INPUT_POST, "image_ctgy", FILTER_SANITIZE_STRING);
+        }
+    else
+        {
+        throw new Exception("Invalid Category");
+        }
+    /***  get the image info. ***/
+    $size = getimagesize($_FILES['userfile']['tmp_name']);
+
+    /*** assign our variables ***/
+    $image_type   = $size['mime'];
+    $imgfp        = fopen($_FILES['userfile']['tmp_name'], 'rb');
+    $image_width  = $size[0];
+    $image_height = $size[1];
+    $image_size   = $size[3];
+    $image_name   = $_FILES['userfile']['name'];
+    $maxsize      = 99999999;
+
+    /***  check the file is less than the maximum file size ***/
+    if($_FILES['userfile']['size'] < $maxsize )
+        {
+        /*** create a second variable for the thumbnail ***/
+        $thumb_data = $_FILES['userfile']['tmp_name'];
+
+        /*** get the aspect ratio (height / width) ***/
+        $aspectRatio=(float)($size[0] / $size[1]);
+
+        /*** the height of the thumbnail ***/
+        $thumb_height = 100;
+
+        /*** the thumb width is the thumb height/aspectratio ***/
+        $thumb_width = $thumb_height * $aspectRatio;
+
+        /***  get the image source ***/
+        $src = ImageCreateFromjpeg($thumb_data);
+
+        /*** create the destination image ***/
+        $destImage = ImageCreateTrueColor($thumb_width, $thumb_height);
+
+        /*** copy and resize the src image to the dest image ***/
+        ImageCopyResampled($destImage, $src, 0,0,0,0, $thumb_width, $thumb_height, $size[0], $size[1]);
+
+        /*** start output buffering ***/
+        ob_start();
+
+        /***  export the image ***/
+        imageJPEG($destImage);
+
+        /*** stick the image content in a variable ***/
+        $image_thumb = ob_get_contents();
+
+        /*** clean up a little ***/
+        ob_end_clean();
+
+        /*** connect to db ***/
+        $dbh = new PDO('mysql:host=localhost;dbname=projekt;charset=utf8', 'projekt', 'hS35LeJuNABRUBP9');
+        //$dbh = new PDO("mysql:host=localhost;dbname=testblob", 'username', 'password');
+
+        /*** set the error mode ***/
+        $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$result=mysql_fetch_assoc(mysql_query("SELECT * FROM `user` WHERE `id`= '$user_id'")); 
+$userid = 12;
+
+        /*** prepare the sql ***/
+        $stmt = $dbh->prepare("INSERT INTO testblob (image_type ,image, image_height, image_width, image_thumb, thumb_height, thumb_width, image_ctgy, image_name, user_id)
+        VALUES (? ,?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bindParam(1, $image_type);
+        $stmt->bindParam(2, $imgfp, PDO::PARAM_LOB);
+        $stmt->bindParam(3, $image_height, PDO::PARAM_INT);
+        $stmt->bindParam(4, $image_width,  PDO::PARAM_INT);
+        $stmt->bindParam(5, $image_thumb,  PDO::PARAM_LOB);
+        $stmt->bindParam(6, $thumb_height, PDO::PARAM_INT);
+        $stmt->bindParam(7, $thumb_width,  PDO::PARAM_INT);
+        $stmt->bindParam(8, $image_ctgy);
+        $stmt->bindParam(9, $image_name);
+        $stmt->bindParam(10,$userid);
+
+        /*** execute the query ***/
+        $stmt->execute();
+        }
+    else
+        {
+    /*** throw an exception is image is not of type ***/
+    throw new Exception("File Size Error");
+        }
+    }
+else
+    {
+    // if the file is not less than the maximum allowed, print an error
+    throw new Exception("Unsupported Image Format!");
+    }
+}
+?>
+
+-->            <!--- end image --->
+            
+           
+
+            
+
+         <!--- <a href="#modal"  >   --->
+            <!--- Databas image --->
+            <!--- 
+            <?php
+/*** Check the $_GET variable ***/
+   try    {
+          /*** connect to the database ***/
+          $dbh = new PDO('mysql:host=localhost;dbname=projekt;charset=utf8', 'projekt', 'hS35LeJuNABRUBP9');
+
+          /*** set the PDO error mode to exception ***/
+          $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+          /*** The sql statement ***/
+          $sql = "SELECT image_id, thumb_height, thumb_width, image_type, image_name, user_id FROM testblob Order by image_id DESC LIMIT 1";
+
+          /*** prepare the sql ***/
+          $stmt = $dbh->prepare($sql);
+
+          /*** exceute the query ***/
+          $stmt->execute(); 
+
+          /*** set the fetch mode to associative array ***/
+          $stmt->setFetchMode(PDO::FETCH_ASSOC);
+		  $test = $_SESSION['user_id'];
+          /*** set the header for the image ***/
+          foreach($stmt->fetchAll() as $array)
+              {
+              echo $test;
+              echo '<div style="text-align:center">';
+             echo '<img class="profile-picture" src="includes/showthumbs.php?image_id='.$array['image_id'].'&user_id='.$array['user_id'].'" alt="'.$array['image_name'].'/" style="width: '.$array['thumb_width'].'px; height: '.$array['thumb_height'].'px;">
+            <p>
+            </a></p>
+            </div>';
+            echo '</div>';
+            }
+        }
+     catch(PDOException $e)
+        {
+        echo $e->getMessage();
+        }
+     catch(Exception $e)
+        {
+        echo $e->getMessage();
+        }
+?>
+          </a>
+          
+         <div id="modal">
+		<div class="modal-content">
+			<div class="header">
+				<h2>Modal Header <---- is modal </h2>
+			</div>
+			<div class="copy">
+				<p>I are modal. How modal are you?</p>
+			</div>
+			<div class="cf footer">
+				<a href="#" class="btn">Close</a>
+			</div>
+		</div>
+		<div class="overlay"></div>
+	</div>
+	
+	
+            end Databas Image ---->

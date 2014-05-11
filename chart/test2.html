@@ -1,0 +1,71 @@
+
+<!DOCTYPE html >
+<html>
+<head>
+    <link rel="stylesheet" href="demos.css" type="text/css" media="screen" />
+    <script src="RGraph.common.core.js" ></script>
+    <script src="RGraph.common.dynamic.js" ></script>
+    <script src="RGraph.common.tooltips.js" ></script>
+    <script src="RGraph.common.effects.js" ></script>
+    <script src="RGraph.common.key.js" ></script>
+    <script src="RGraph.drawing.yaxis.js" ></script>
+    <script src="RGraph.line.js" ></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <!--[if lt IE 9]><script src="../excanvas/excanvas.js"></script><![endif]-->
+    
+    <title>Combining more then two Line objects</title>
+
+    <meta name="description" content="Multiple Line charts each with their own Y axis using the drawing API Y axis object" />
+     
+</head>
+<body>
+
+   
+    <canvas id="cvs" width="500" height="250">[No canvas support]</canvas>
+    
+    <script>
+        $(document).ready(function ()
+        {
+            var gutterLeft = 150;
+            var gutterRight = 20;
+            var gutterTop   = 20;
+
+            var line1 = new RGraph.Line('cvs', [1,2,3,4,5,6,7,8,9,10,11,12])
+                .set('ymax', 12)
+                .set('hmargin', 5)
+                .set('gutter.right', gutterRight)
+                .set('gutter.left', gutterLeft)
+                .set('gutter.top', gutterTop)
+                .set('labels', [1,2,3,4,5,6,7,8,9,10,11,12])
+                .set('tooltips', [1,2,3,4,5,6,7,8,9,10,11])
+                .set('colors', ['red', 'green', 'blue'])
+                .set('key', ['Flow rate', 'Speed', 'Pressure'])
+                .set('key.position', 'gutter')
+                .set('key.position.gutter.boxed', false)
+                .set('key.position.x', 275)
+                .set('noaxes', true)
+                .set('ylabels', false)
+                .set('shadow', false)
+                .draw();
+    
+            
+    
+    
+            /**
+            * This draws the extra axes. It's run whenever the line3 object is drawn
+            */
+            yaxis1 = new RGraph.Drawing.YAxis('cvs', 150)
+                .set('colors', ['black'])
+                .set('text.color', 'black')
+                .set('max', 10)
+                .set('title', 'Days')
+                .draw();
+                  })
+    </script>
+
+    <p>
+        <a href="./">&laquo; Back</a>
+    </p>
+
+</body>
+</html>
